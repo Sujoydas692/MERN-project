@@ -50,7 +50,7 @@ const Auth = () => {
 
     if (isLoginMode){
         try {
-            const response = await sendRequest('http://localhost:5000/api/users/login',
+            const responseData = await sendRequest('http://localhost:5000/api/users/login',
             'POST',
             JSON.stringify({
                 email: formState.inputs.email.value,
@@ -60,52 +60,33 @@ const Auth = () => {
             'Content-type' : 'application/json'
         }
         );
-
-    const responseData = await response.json();
-    if (!response.ok) {
-        throw new Error(responseData.message);
-    }
-    
-    setIsLoading(false);
-    auth.login();
+        auth.login(responseData.user.id);
         } catch (err) {
-            setIsLoading(false);
-            setError(err.message || 'Something went wrong, please try again!');
+
         }
+
     } else {
         try {
-            const response = await fetch('http://localhost:5000/api/users/signup', {
-        method: 'POST',
-        headers: {
+            const responseData = await sendRequest('http://localhost:5000/api/users/signup',
+            'POST',
+            JSON.stringify({
+                name: formState.inputs.name.value,
+                email: formState.inputs.email.value,
+                password: formState.inputs.password.value
+            }),
+        {
             'Content-type' : 'application/json'
-        },
-        body: JSON.stringify({
-            name: formState.inputs.name.value,
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value
-        })
-    });
-
-    const responseData = await response.json();
-    if (!response.ok) {
-        throw new Error(responseData.message);
-    }
-    
-    setIsLoading(false);
-    auth.login();
+        }
+        );
+    auth.login(responseData.user.id);
         } catch (err) {
-            setIsLoading(false);
-            setError(err.message || 'Something went wrong, please try again!');
+            
         }
     }
-   }
-
-   const errorHandler = () => {
-    setError(null);
    };
     return (
         <React.Fragment>
-            <ErrorModal error={error} onClear={errorHandler} />
+            <ErrorModal error={error} onClear={clearError} />
     <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay/>}
         <h2>{isLoginMode ? 'LogIn' : 'Registration'}</h2>
