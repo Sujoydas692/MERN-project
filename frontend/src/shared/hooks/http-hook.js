@@ -49,7 +49,7 @@ export const useHttpClient = () => {
         return () => {
             activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort());
         };
-    }, [])
+    }, []);
 
     return { isLoading, error, sendRequest, clearError };
 };

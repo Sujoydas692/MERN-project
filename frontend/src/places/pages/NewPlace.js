@@ -1,4 +1,6 @@
 import React, { useContext } from "react";
+import { useHistory } from "react-router-dom";
+
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
@@ -32,6 +34,8 @@ const NewPlace = () => {
         false
         );
 
+        const history = useHistory();
+
     const placeSubmitHandler = async event => {
         event.preventDefault();
         try {
@@ -40,13 +44,19 @@ const NewPlace = () => {
             description: formState.inputs.description.value,
             address: formState.inputs.address.value,
             creator: auth.userId
-        }));
+        }),
+        { 'Content-Type': 'application/json' }
+        );
+        history.push('/');
         } catch (err) {}
         
     };
 
     return (
+        <React.Fragment>
+            <ErrorModal error={error} onClear={clearError} />
     <form className="place-form" onSubmit={placeSubmitHandler}>
+        {isLoading && <LoadingSpinner asOverlay />}
         <Input 
         id="title"
         element="input" 
@@ -74,6 +84,7 @@ const NewPlace = () => {
         />
         <Button type="submit" disabled={!formState.isValid}>ADD PLACE</Button>
     </form>
+    </React.Fragment>
     );
 };
 
