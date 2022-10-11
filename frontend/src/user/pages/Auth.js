@@ -5,6 +5,7 @@ import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import { VALIDATOR_EMAIL, VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from "../../shared/util/validators";
 import { useForm } from "../../shared/hooks/form-hook";
 import { useHttpClient } from "../../shared/hooks/http-hook";
@@ -31,13 +32,19 @@ const Auth = () => {
     if(!isLoginMode){
         setFormData({
             ...formState.inputs,
-            name: undefined
-        }, formState.inputs.email.isValid && formState.inputs.password.isValid)
+            name: undefined,
+            image: undefined
+        },
+        formState.inputs.email.isValid && formState.inputs.password.isValid)
     } else {
         setFormData({
             ...formState.inputs,
             name: {
                 value: '',
+                isValid: false
+            },
+            image: {
+                value: null,
                 isValid: false
             }
         }, false)
@@ -48,6 +55,8 @@ const Auth = () => {
    const authSubmitHandler = async event => {
     event.preventDefault();
 
+    console.log(formState.inputs);
+
     if (isLoginMode){
         try {
             const responseData = await sendRequest('http://localhost:5000/api/users/login',
@@ -57,7 +66,7 @@ const Auth = () => {
                 password: formState.inputs.password.value
             }),
         {
-            'Content-type' : 'application/json'
+            'Content-Type' : 'application/json'
         }
         );
         auth.login(responseData.user.id);
@@ -117,10 +126,11 @@ const Auth = () => {
             id="password"
             type="password"
             label="Password"
-            validators={[VALIDATOR_MINLENGTH(5)]}
-            errorText="Please enter valid password, at least 5 characters"
+            validators={[VALIDATOR_MINLENGTH(6)]}
+            errorText="Please enter valid password, at least 6 characters"
             onInput={inputHandler}
             />
+            {!isLoginMode && <ImageUpload center id="image" onInput={inputHandler} />}
             <Button type="submit" disabled={!formState.isValid}>{isLoginMode ? 'LOGIN' : 'SIGNUP'}</Button>
         </form>
         <Button inverse onClick={switchModeHandler}>SWITCH TO {isLoginMode ? 'SIGNUP' : 'LOGIN'}</Button>
